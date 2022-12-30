@@ -12,4 +12,18 @@ export namespace CreateStatementError {
       super('Insufficient funds', 400);
     }
   }
+
+  export class InvalidAmount extends AppError {
+    constructor() {
+      super('Invalid amount', 400);
+    }
+  }
+
+  export class InvalidOperationType extends AppError {
+    constructor() {
+      super('Invalid operation type', 400);
+    }
+  }
+
+
 }
