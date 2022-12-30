@@ -5,6 +5,11 @@ import { IStatementsRepository } from "../../repositories/IStatementsRepository"
 import { CreateStatementError } from "./CreateStatementError";
 import { ICreateStatementDTO } from "./ICreateStatementDTO";
 
+enum OperationType {
+  DEPOSIT = 'deposit',
+  WITHDRAW = 'withdraw',
+}
+
 @injectable()
 export class CreateStatementUseCase {
   constructor(
@@ -13,16 +18,24 @@ export class CreateStatementUseCase {
 
     @inject('StatementsRepository')
     private statementsRepository: IStatementsRepository
-  ) {}
+  ) { }
 
   async execute({ user_id, type, amount, description }: ICreateStatementDTO) {
     const user = await this.usersRepository.findById(user_id);
 
-    if(!user) {
+    if (!user) {
       throw new CreateStatementError.UserNotFound();
     }
 
-    if(type === 'withdraw') {
+    if (amount <= 0) {
+      throw new CreateStatementError.InvalidAmount();
+    }
+
+    if (type !== OperationType.DEPOSIT && type !== OperationType.WITHDRAW) {
+      throw new CreateStatementError.InvalidOperationType();
+    }
+
+    if (type === 'withdraw') {
       const { balance } = await this.statementsRepository.getUserBalance({ user_id });
 
       if (balance < amount) {
